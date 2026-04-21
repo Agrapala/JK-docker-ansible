@@ -10,11 +10,15 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                dir('app') {
-                    sh 'docker build -t $IMAGE_NAME:latest .'
-                }
+                sh 'docker build -t $IMAGE_NAME:latest .'
             }
         }
 
