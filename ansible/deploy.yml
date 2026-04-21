@@ -2,7 +2,9 @@
   become: yes
   tasks:
     - name: Build Docker image locally
-      command: docker build -t essay-app:latest ..
+      command: docker build -t essay-app:latest .
+      args:
+        chdir: "{{ playbook_dir }}/.."
 
     - name: Stop old container
       command: docker stop flask-demo
