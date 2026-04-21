@@ -29,5 +29,10 @@ pipeline {
                 '''
             }
         }
+        stage('clean ws') {
+            steps {
+                cleanWs()
+            }
+        }
     }
 }
