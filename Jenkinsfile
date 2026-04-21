@@ -1,17 +1,15 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     environment {
-        IMAGE_NAME = "yourdockerhubusername/flask-demo"
+        IMAGE_NAME = "essay-app"
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/yourusername/my-devops-project.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 dir('app') {
@@ -20,23 +18,15 @@ pipeline {
             }
         }
 
-        stage('Docker Login') {
+        stage('Run Local Container') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                sh 'docker push $IMAGE_NAME:latest'
-            }
-        }
-
-        stage('Deploy with Ansible') {
-            steps {
-                sh 'ansible-playbook -i ansible/inventory.ini ansible/deploy.yml'
+                sh '''
+                    docker rm -f flask-demo || true
+                    docker run -d --name flask-demo -p 5000:5000 \
+                      -e FLASK_HOST=0.0.0.0 \
+                      -e FLASK_PORT=5000 \
+                      $IMAGE_NAME:latest
+                '''
             }
         }
     }
