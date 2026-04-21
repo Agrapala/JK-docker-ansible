@@ -1,5 +1,5 @@
 - hosts: local
-  become: yes
+  become: no
   tasks:
     - name: Build Docker image locally
       command: docker build -t essay-app:latest .
