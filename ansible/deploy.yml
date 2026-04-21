@@ -1,0 +1,20 @@
+- hosts: local
+  become: yes
+  tasks:
+    - name: Build Docker image locally
+      command: docker build -t essay-app:latest ..
+
+    - name: Stop old container
+      command: docker stop flask-demo
+      ignore_errors: yes
+
+    - name: Remove old container
+      command: docker rm flask-demo
+      ignore_errors: yes
+
+    - name: Start new container
+      command: >
+        docker run -d --name flask-demo
+        -p 5000:5000
+        --restart unless-stopped
+        essay-app:latest

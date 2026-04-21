@@ -7,6 +7,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 5000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENV FLASK_HOST=0.0.0.0
+ENV FLASK_PORT=5000
+
+CMD ["python", "app/main.py"]
