@@ -5,9 +5,21 @@ pipeline {
         skipDefaultCheckout(true)
     }
 
+    parameters {
+        string(
+            name: 'K8S_IMAGE',
+            defaultValue: 'docker.io/samithaagrapala/essay-app:latest',
+            description: 'Registry image URL used for Kubernetes deployment'
+        )
+        string(
+            name: 'DOCKERHUB_CREDENTIALS_ID',
+            defaultValue: 'dockerhub-creds',
+            description: 'Jenkins credentials ID for Docker registry login'
+        )
+    }
+
     environment {
         IMAGE_NAME = "essay-app"
-        K8S_IMAGE = "docker.io/samithaagrapala/essay-app:latest"
     }
 
     stages {
@@ -19,14 +31,17 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $K8S_IMAGE .'
-                sh 'docker push $K8S_IMAGE'
+                withCredentials([usernamePassword(credentialsId: params.DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo "$DOCKER_PASS" | docker login docker.io -u "$DOCKER_USER" --password-stdin'
+                }
+                sh "docker build -t ${params.K8S_IMAGE} ."
+                sh "docker push ${params.K8S_IMAGE}"
             }
         }
 
         stage('Deploy with Ansible') {
             steps {
-                sh 'ansible-playbook -i ansible/inventory.ini ansible/deploy.yml -e k8s_image=$K8S_IMAGE'
+                sh "ansible-playbook -i ansible/inventory.ini ansible/deploy.yml -e k8s_image=${params.K8S_IMAGE}"
             }
         }
         stage('clean ws') {
