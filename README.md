@@ -44,13 +44,14 @@ The pipeline now uses Ansible only, and the playbook drives Kubernetes deploymen
 
 The Kubernetes image must be a registry URL that your cluster can pull, for example `docker.io/<your-user>/essay-app:latest`.
 Set `K8S_IMAGE` in [Jenkinsfile](Jenkinsfile) to your registry URL before running the pipeline.
+Also create a Jenkins username/password credential and set its ID in `DOCKERHUB_CREDENTIALS_ID` so the push step can log in before publishing the image.
 
 Pipeline order:
 
 1. Build Docker Image
 2. Deploy with Ansible
 
-The build stage tags the image with `K8S_IMAGE` and pushes it to the registry before the playbook deploys it.
+The build stage logs in to Docker Hub, tags the image with `K8S_IMAGE`, and pushes it to the registry before the playbook deploys it.
 
 Ansible runs:
 
