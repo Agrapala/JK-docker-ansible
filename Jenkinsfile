@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "essay-app"
-        K8S_IMAGE = "docker.io/your-user/essay-app:latest"
+        K8S_IMAGE = "docker.io/samithaagrapala/essay-app:latest"
     }
 
     stages {

@@ -1,7 +1,7 @@
 - hosts: local
   become: no
   vars:
-    k8s_image: "docker.io/your-user/essay-app:latest"
+    k8s_image: "docker.io/samithaagrapala/essay-app:latest"
   tasks:
     - name: Apply Kubernetes deployment
       command: kubectl apply -f k8s/deployment.yaml
