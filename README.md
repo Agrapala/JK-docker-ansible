@@ -38,6 +38,28 @@ Open:
 
 - http://localhost:5000
 
+## Jenkins Deployment Target
+
+The pipeline now uses Ansible only, and the playbook drives Kubernetes deployment with `kubectl`.
+
+The Kubernetes image must be a registry URL that your cluster can pull, for example `docker.io/<your-user>/essay-app:latest`.
+Set `K8S_IMAGE` in [Jenkinsfile](Jenkinsfile) to your registry URL before running the pipeline.
+
+Pipeline order:
+
+1. Build Docker Image
+2. Deploy with Ansible
+
+The build stage tags the image with `K8S_IMAGE` and pushes it to the registry before the playbook deploys it.
+
+Ansible runs:
+
+```bash
+ansible-playbook -i ansible/inventory.ini ansible/deploy.yml -e k8s_image=docker.io/<your-user>/essay-app:latest
+```
+
+The playbook applies [k8s/deployment.yaml](k8s/deployment.yaml), applies [k8s/service.yaml](k8s/service.yaml), sets the image, and waits for rollout.
+
 ## Available Pages
 
 - `/` -> list of essay topics

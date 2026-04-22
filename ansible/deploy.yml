@@ -1,22 +1,26 @@
 - hosts: local
   become: no
+  vars:
+    k8s_image: "docker.io/your-user/essay-app:latest"
   tasks:
-    - name: Build Docker image locally
-      command: docker build -t essay-app:latest .
+    - name: Apply Kubernetes deployment
+      command: kubectl apply -f k8s/deployment.yaml
       args:
         chdir: "{{ playbook_dir }}/.."
 
-    - name: Stop old container
-      command: docker stop flask-demo
-      ignore_errors: yes
+    - name: Apply Kubernetes service
+      command: kubectl apply -f k8s/service.yaml
+      args:
+        chdir: "{{ playbook_dir }}/.."
 
-    - name: Remove old container
-      command: docker rm flask-demo
-      ignore_errors: yes
-
-    - name: Start new container
+    - name: Set deployment image
       command: >
-        docker run -d --name flask-demo
-        -p 5000:5000
-        --restart unless-stopped
-        essay-app:latest
+        kubectl set image deployment/essay-app
+        essay-app={{ k8s_image }}
+      args:
+        chdir: "{{ playbook_dir }}/.."
+
+    - name: Wait for rollout
+      command: kubectl rollout status deployment/essay-app --timeout=120s
+      args:
+        chdir: "{{ playbook_dir }}/.."
